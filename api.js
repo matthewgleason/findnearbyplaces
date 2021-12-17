@@ -1,40 +1,61 @@
-var { flowers } = require("./data/flowers");
-var { scores } = require("./data/scores");
-var { users } = require("./data/users.js");
 const db = require("./data/db");
 
-const getAllQuizzes = () => {
-  return db.getQuizzes();
+const addUser = (email, password) => {
+  return db.addCustomer(email, password);
 };
 
-const getQuiz = (id) => {
-  return db.getQuiz(id);
+const login = (email, password) => {
+  return db.login(email, password);
 };
 
-const setScore = (score, quizid, quiztaker) => {
-  return db.setScore(score, quizid, quiztaker);
+const search = (term, long, lat, rad, max, cat, sort) => {
+  return db.search(term, long, lat, rad, max, cat, sort);
 };
 
-const getScore = (user, id) => {
-  return db.getScore(id, user);
+const place = (name, category_id, latitude, longitude, description) => {
+  return db.place(name, category_id, latitude, longitude, description);
 };
 
-const getFlowers = () => {
-  return db.getFlowers();
+const category = (name) => {
+  return db.category(name);
 };
 
-const addUser = (name, email, password) => {
-  return db.addCustomer(name.toLowerCase(), email, password);
+const photo = (photo, place_id, review_id) => {
+  return db.photo(photo, place_id, review_id);
 };
 
-const login = (name, email, password) => {
-  return db.login(name, email, password);
+const review = (place_id, comment, review) => {
+  return db.review(place_id, comment, review);
 };
 
-exports.setScore = setScore;
-exports.getQuiz = getQuiz;
-exports.getAllQuizzes = getAllQuizzes;
+const update_review = (review_id, comment, review) => {
+  return db.update_review(review_id, comment, review);
+};
+
+const update_place = (
+  place_id,
+  name,
+  category_id,
+  latitude,
+  longitude,
+  description
+) => {
+  return db.update_place(
+    place_id,
+    name,
+    category_id,
+    latitude,
+    longitude,
+    description
+  );
+};
+
 exports.addUser = addUser;
-exports.getFlowers = getFlowers;
-exports.getScore = getScore;
 exports.login = login;
+exports.search = search;
+exports.place = place;
+exports.category = category;
+exports.photo = photo;
+exports.review = review;
+exports.update_place = update_place;
+exports.update_review = update_review;

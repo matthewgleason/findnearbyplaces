@@ -17,62 +17,91 @@ const connection = {
 
 const pool = new Pool(connection);
 
-const getCustomers = () => {
-  return pool.query("select * from imagequiz.customer");
-};
-
-const getFlowers = () => {
-  return pool.query("select * from imagequiz.flower");
-};
-
-const addCustomer = (name, email, password) => {
+const addCustomer = (email, password) => {
   const salt = bcrypt.genSaltSync(9);
   const hashedPassword = bcrypt.hashSync(password, salt);
   return pool.query(
-    "insert into imagequiz.customer(name, email, password) values ($1, $2, $3)",
+    "insert into findplaces.customer(email, password) values ($1, $2)",
     [name, email, hashedPassword]
   );
 };
 
-const getQuizzes = () => {
-  return pool.query("select * from imagequiz.quiz");
-};
-
-const login = (name, email, password) => {
+const login = (email, password) => {
   const salt = bcrypt.genSaltSync(9);
   const hashedPassword = bcrypt.hashSync(password, salt);
   return pool.query(
-    "select * from imagequiz.customer where name=$1 and email=$2 and password=$3",
-    [name, email, hashedPassword]
+    "select * from findplaces.customer where email=$2 and password=$3",
+    [email, hashedPassword]
   );
 };
 
-const getQuiz = (id) => {
+const search = (term, long, lat, rad, max, cat, sort) => {
   return pool.query(
-    "select * from imagequiz.quiz_question inner join imagequiz.question on quiz_question.question_id = question.id where quiz_question.quiz_id=$1",
-    [id]
+    "(select * from findplaces.places where name=$1 and latitude=$2 and longitude=$3) union (select * from findplaces.place inner join findplace.category on findplace.category(id)=findplace.place(category_id) where id=$5",
+    [(term, lat, long, term, cat)]
   );
 };
-
-const setScore = (score, quizid, quiztaker) => {
+const place = (name, category_id, latitude, longitude, description) => {
   return pool.query(
-    "insert into imagequiz.score(score, quiz_id, quiz_taker) values ($1, $2, $3)",
-    [score, quizid, quiztaker]
+    "insert into findplaces.place(name, latitude, longitude, description, category_id) values ($1, $2, $3, $4, $5, $6)",
+    [name, latitude, longitude, description, category_id]
   );
 };
 
-const getScore = (quizid, quiztaker) => {
+const category = (name) => {
+  return pool.query("insert into findplaces.category(name) values ($1)", [
+    name,
+  ]);
+};
+
+const photo = (photo, place_id, review_id) => {
+  if (review_id) {
+    return pool.query(
+      "with first_insert as (insert into findplaces.photo(file) values ($1) RETURNING id), second_insert as (insert into findplaces.review_photo(photo_id) values (select id from first_insert));",
+      [photo]
+    );
+  } else {
+    return pool.query(
+      "with first_insert as (insert into findplaces.photo(file) values ($1) RETURNING id), second_insert as (insert into findplaces.place_photo(photo_id) values (select id from first_insert));",
+      [photo]
+    );
+  }
+};
+
+const review = (place_id, comment, rating) => {
   return pool.query(
-    "select * from imagequiz.score where quiz_taker = $1 and quiz_id = $2",
-    [quiztaker, quizid]
+    "insert into findplaces.reviews(location_id, text, rating) values ($1, $2, $3)",
+    [place_id, comment, rating]
   );
 };
 
-exports.getCustomers = getCustomers;
+const update_place = (
+  place_id,
+  name,
+  category_id,
+  latitude,
+  longitude,
+  description
+) => {
+  return pool.query(
+    "update findplaces.place set name=$1, latitude=$2, longitude=$3, description=$4, category_id=$5 where id=$",
+    [name, latitude, longitude, description, category_id, place_id]
+  );
+};
+
+const update_review = (review_id, comment, rating) => {
+  return pool.query(
+    "update findplaces.review set text=$1, rating=$2 where id=$3",
+    [comment, rating, review_id]
+  );
+};
+
 exports.addCustomer = addCustomer;
-exports.getFlowers = getFlowers;
-exports.getQuizzes = getQuizzes;
-exports.getQuiz = getQuiz;
 exports.login = login;
-exports.getScore = getScore;
-exports.setScore = setScore;
+exports.search = search;
+exports.place = place;
+exports.category = category;
+exports.photo = photo;
+exports.review = review;
+exports.update_place = update_place;
+exports.update_review = update_review;

@@ -20,7 +20,7 @@ passport.use(
       .then((x) => {
         console.log(x);
         //if (x.isValid) {
-        let user = { id: x.id, name: x.name, email: email };
+        let user = { id: x.id, email: email };
         console.log(user);
         return done(null, user);
         //} else {
@@ -116,11 +116,6 @@ application.get("/return/twitter", (request, response, next) => {
   })(request, response, next);
 });
 
-application.get("/quizzes", (request, response) => {
-  api.getAllQuizzes();
-  console.log(api.getAllQuizzes());
-});
-
 application.get("/logout", function (request, response, next) {
   request.logout();
   response.json({ done: true, message: "The customer logged out." });
@@ -145,62 +140,42 @@ application.get(
   }
 );
 
-application.get("/flowers", (request, response) => {
-  api
-    .getFlowers()
-    .then((x) => {
-      response.send(x.rows);
-      console.log("worked flowers");
-      console.log(x.rows);
-    })
-    .catch((e) => response.json({ message: "Could not get flowers." }));
-});
-
-application.get("/quiz/:id", (request, response) => {
-  let id = request.params.id;
-  api
-    .getQuiz(id)
-    .then((x) => {
-      console.log(x.rows);
-      response.send(x.rows);
-    })
-    .catch((e) => {
-      console.log(e);
-      console.log("count not find rows");
-    });
-});
-
-application.post("/score", (request, response) => {
-  let score = request.body.score;
-  let quizid = request.body.quizid;
-  let quiztaker = request.body.quiztaker;
-  api
-    .setScore(score, quizid, quiztaker)
-    .then((x) =>
-      response.status(200).send({ done: true, message: "Score added" })
-    )
-    .catch((e) =>
-      response.send({ done: false, message: "Could not add score." })
-    );
-});
-
-application.get("/scores/:quiztaker/:quizid", (request, response) => {
-  api
-    .getScore(request.params.quiztaker, request.params.quizid)
-    .then((x) => {
-      response.send(x.rows);
-      console.log(x.rows, " Rows");
-    })
-    .catch((e) => response.send({ message: "Score not added." }));
-});
+application.get(
+  "/search/:search_term/:user_location/:radius_filter/:maximum_result_return/:category_filter/:sort",
+  () => {
+    let term = request.params.search_term;
+    let [long, lat] = request.params.user_location.split(",");
+    let rad = request.params.radius_filter;
+    let max = request.params.maximum_result_return;
+    let cat = request.params.category_filter;
+    let sort = request.params.sort;
+    api
+      .search(term, long, lat, rad, max, cat, sort)
+      .then((x) => {
+        response.json({
+          done: true,
+          result: {
+            name: x.name,
+            address: x.longitude + "," + x.latitude,
+            category: x.name,
+          },
+        });
+      })
+      .catch((e) => {
+        response.json({
+          done: false,
+          result: "Result could not be found",
+        });
+      });
+  }
+);
 
 application.post("/register", (request, response) => {
-  let name = request.body.name;
   let email = request.body.email;
   let password = request.body.password;
 
   api
-    .addUser(name, email, password)
+    .addUser(email, password)
     .then((x) =>
       response.json({ done: true, message: "the customer was added." })
     )
@@ -232,6 +207,122 @@ application.post("/login", (request, response) => {
     .catch((e) => console.log(e));
 });
 */
+application.post("/place", (request, response) => {
+  let name = request.body.name;
+  let category_id = request.body.category_id;
+  let longitude = request.body.longitude;
+  let latitude = request.body.latitude;
+  let description = request.body.description;
+
+  api
+    .place(name, category_id, latitude, longitude, description)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted place" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
+
+application.put("/place", (request, response) => {
+  let place_id = request.body.place_id;
+  let name = request.body.name;
+  let category_id = request.body.category_id;
+  let longitude = request.body.longitude;
+  let latitude = request.body.latitude;
+  let description = request.body.description;
+
+  api
+    .update_place(place_id, name, category_id, latitude, longitude, description)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted place" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
+
+application.post("/category", (request, response) => {
+  let name = request.body.name;
+
+  api
+    .category(name)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted place" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
+
+application.post("/photo", (request, response) => {
+  let photo = request.body.photo;
+  let place_id = request.body.place_id;
+  let review_id = request.body.review_id;
+
+  api
+    .photo(photo, place_id, review_id)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted photo" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
+
+application.post("/review", (request, response) => {
+  let place_id = request.body.place_id;
+  let comment = request.body.comment;
+  let rating = request.body.rating;
+
+  api
+    .review(place_id, comment, rating)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted review" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
+
+application.post("/review", (request, response) => {
+  let review_id = request.body.review_id;
+  let comment = request.body.comment;
+  let rating = request.body.rating;
+
+  api
+    .update_review(review_id, comment, rating)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted review" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "A customer with the same email already exists",
+      });
+      console.log(e);
+    });
+});
 
 application.post("/login", (request, response, next) => {
   console.log("Inside POST /login callback");

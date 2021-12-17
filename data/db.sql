@@ -1,56 +1,57 @@
 
-create schema if not exists imagequiz;
-
-drop table if exists imagequiz.quiz_question;
-drop table if exists imagequiz.quiz;
-drop table if exists imagequiz.question;
-drop table if exists imagequiz.category;
-drop table if exists imagequiz.customer;
-drop table if exists imagequiz.flower;
+create schema if not exists findplaces;
 
 
 
-create table if not exists imagequiz.customer 
+create table if not exists findplaces.customer 
 (
 	id bigserial primary key,
-	name text not null,
 	email text not null unique,
 	password text not null
 );
 
-create table if not exists imagequiz.question 
+create table if not exists findplaces.place
 (
 	id bigserial primary key,
-	picture text not null,
-	choices text not null,
-	answer text not null
+	name text not null,
+	latitude int not null,
+	longitude int not null, 
+	description text not null, 
+	category_id int references findplaces.category(id),
+	customer_id int references findplaces.customer(id)
 );
 
-create table if not exists imagequiz.category 
+create table if not exists findplaces.category 
 (
 	id bigserial primary key,
 	name text not null
 );
 
-create table if not exists imagequiz.quiz 
+create table if not exists findplaces.reviews
 (
 	id bigserial primary key,
-	name text not null,
-	category_id int not null references imagequiz.category(id)
+	location_id int references findplaces.place(id),
+	customer_id int references findplaces.customer(id)
+	text text not null,
+	rating int not null
 	
 );
 
-create table if not exists imagequiz.quiz_question
-(
-	quiz_id int references imagequiz.quiz(id),
-	question_id int not null references imagequiz.question(id)
-	
-);
-
-create table if not exists imagequiz.flower
+create table if not exists findplaces.photo
 (
 	id bigserial primary key,
-	name text not null,
-	picture text not null
+	file bytea not null
+);
+
+create table if not exists findplaces.place_photo
+(
+	location_id int references findplaces.place(id),
+	photo_id int references findplaces.photo(id)
+	
+);
+create table if not exists findplaces.review_photo
+(
+	review_id int references findplaces.reviews(id),
+	photo_id int references findplaces.photo(id)
 	
 );
