@@ -96,6 +96,24 @@ const update_review = (review_id, comment, rating) => {
   );
 };
 
+const update_photo = (photo, photo_id) => {
+  return pool.query("update findplaces.photo set file=$1 where id=$2", [
+    [photo, photo_id],
+  ]);
+};
+
+const delete_place = (place_id) => {
+  return pool.query("delete from findplaces.place where id=$1", [place_id]);
+};
+
+const delete_review = (review_id) => {
+  return pool.query("delete from findplaces.reviews where id=$1", [review_id]);
+};
+
+const delete_photo = (photo_id) => {
+  return pool.query("delete from findplaces.photo where id=$1", [photo_id]);
+};
+
 exports.addCustomer = addCustomer;
 exports.login = login;
 exports.search = search;
@@ -105,3 +123,7 @@ exports.photo = photo;
 exports.review = review;
 exports.update_place = update_place;
 exports.update_review = update_review;
+exports.update_photo = update_photo;
+exports.delete_place = delete_place;
+exports.delete_review = delete_review;
+exports.delete_photo = delete_photo;

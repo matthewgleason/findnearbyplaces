@@ -32,6 +32,10 @@ const update_review = (review_id, comment, review) => {
   return db.update_review(review_id, comment, review);
 };
 
+const update_photo = (photo, photo_id) => {
+  return db.update_photo(photo, photo_id);
+};
+
 const update_place = (
   place_id,
   name,
@@ -50,6 +54,18 @@ const update_place = (
   );
 };
 
+const delete_place = (place_id) => {
+  return db.delete_place(place_id);
+};
+
+const delete_review = (review_id) => {
+  return db.delete_review(review_id);
+};
+
+const delete_photo = (photo_id) => {
+  return db.delete_photo(photo_id);
+};
+
 exports.addUser = addUser;
 exports.login = login;
 exports.search = search;
@@ -59,3 +75,7 @@ exports.photo = photo;
 exports.review = review;
 exports.update_place = update_place;
 exports.update_review = update_review;
+exports.update_photo = update_photo;
+exports.delete_place = delete_place;
+exports.delete_review = delete_review;
+exports.delete_photo = delete_photo;

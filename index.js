@@ -222,7 +222,7 @@ application.post("/place", (request, response) => {
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "Could not post place",
       });
       console.log(e);
     });
@@ -239,12 +239,27 @@ application.put("/place", (request, response) => {
   api
     .update_place(place_id, name, category_id, latitude, longitude, description)
     .then((x) =>
-      response.json({ done: true, id: x.id, message: "posted place" })
+      response.json({ done: true, id: x.id, message: "updated place" })
     )
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "Could not update place",
+      });
+      console.log(e);
+    });
+});
+
+application.delete("/place/:place_id", (request, response) => {
+  let place_id = request.params.place_id;
+
+  api
+    .delete_place(place_id)
+    .then((x) => response.json({ done: true, message: "deleted place" }))
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "Could not delete place",
       });
       console.log(e);
     });
@@ -256,12 +271,12 @@ application.post("/category", (request, response) => {
   api
     .category(name)
     .then((x) =>
-      response.json({ done: true, id: x.id, message: "posted place" })
+      response.json({ done: true, id: x.id, message: "posted category" })
     )
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "category not posted",
       });
       console.log(e);
     });
@@ -280,7 +295,40 @@ application.post("/photo", (request, response) => {
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "photo not posted",
+      });
+      console.log(e);
+    });
+});
+
+application.put("/photo", (request, response) => {
+  let photo = request.body.photo;
+  let photo_id = request.body.photo_id;
+
+  api
+    .update_photo(photo, photo_id)
+    .then((x) =>
+      response.json({ done: true, id: x.id, message: "posted photo" })
+    )
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "photo not updated",
+      });
+      console.log(e);
+    });
+});
+
+application.delete("/photo/:photo_id", (request, response) => {
+  let photo_id = request.params.photo_id;
+
+  api
+    .delete_photo(photo_id)
+    .then((x) => response.json({ done: true, message: "deleted photo" }))
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "Could not delete photo",
       });
       console.log(e);
     });
@@ -299,13 +347,13 @@ application.post("/review", (request, response) => {
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "review not posted",
       });
       console.log(e);
     });
 });
 
-application.post("/review", (request, response) => {
+application.put("/review", (request, response) => {
   let review_id = request.body.review_id;
   let comment = request.body.comment;
   let rating = request.body.rating;
@@ -313,12 +361,27 @@ application.post("/review", (request, response) => {
   api
     .update_review(review_id, comment, rating)
     .then((x) =>
-      response.json({ done: true, id: x.id, message: "posted review" })
+      response.json({ done: true, id: x.id, message: "updated review" })
     )
     .catch((e) => {
       response.json({
         done: false,
-        message: "A customer with the same email already exists",
+        message: "review not updated",
+      });
+      console.log(e);
+    });
+});
+
+application.delete("/review/:review_id", (request, response) => {
+  let review_id = request.params.review_id;
+
+  api
+    .delete_review(review_id)
+    .then((x) => response.json({ done: true, message: "deleted review" }))
+    .catch((e) => {
+      response.json({
+        done: false,
+        message: "Could not delete review",
       });
       console.log(e);
     });
